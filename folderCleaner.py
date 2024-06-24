@@ -1,45 +1,46 @@
 import os 
 import shutil
 
+FILE_TYPE_MAP = {
+    'jpg': 'Bilder',
+    'png': 'Bilder',
+    'txt': 'Dokumente',
+    'docx': 'Dokumente',
+    'php': 'Code',
+    'py': 'Code',
+    'cpp': 'Code',
+    'mp4': 'Videos'
+}
+
 folder = os.path.join(os.path.dirname(__file__), "dateien")
 
-imageFolder = os.path.join(folder, "Bilder")
-docFolder = os.path.join(folder, "Dokumente")
-codeFolder = os.path.join(folder, "Code")
-miscFolder = os.path.join(folder, "Sonstiges")
+for _, dir in FILE_TYPE_MAP.items():
+    tmp = os.path.join(folder, dir)
+    if not os.path.isdir(tmp):
+        os.mkdir(tmp)
+    
+other = os.path.join(folder, "Sonstiges")
+if not os.path.isdir(other):
+    os.mkdir(other)
 
-def checkAndMkdir(folder):
-    if not os.path.isdir(folder):
-        os.mkdir(folder)
 
-checkAndMkdir(imageFolder)
-checkAndMkdir(docFolder)
-checkAndMkdir(codeFolder)
-checkAndMkdir(miscFolder)
+for file in os.listdir(folder):
+    path = os.path.join(folder, file)
 
-def filenameAndMove(destination):
-    fileNameWithPath = os.path.join(folder, filename)
-    outFileNameWithPath = os.path.join(destination, filename)
-    shutil.move(fileNameWithPath, outFileNameWithPath)
-    print(fileNameWithPath, f"<--moved to {destination}-->")
-    print(outFileNameWithPath)
-    print("---------")
-
-for filename in os.listdir(folder): 
-    fileNameWithPath = os.path.join(folder, filename)
-
-    if os.path.isdir(fileNameWithPath):
+    if os.path.isdir(path):
         continue
-    
-    elif filename.lower().endswith('.jpg'):
-        filenameAndMove(imageFolder)
 
-    elif filename.lower().endswith((".txt", ".docx")):
-        filenameAndMove(docFolder)
-        
-    elif filename.lower().endswith((".php", ".py", ".cpp")):
-        filenameAndMove(codeFolder)
+    splitted = file.rsplit('.', 1)
+    if len(splitted) == 2:
+        extension = splitted[-1].lower()
+
+        if extension in FILE_TYPE_MAP: 
+            target = FILE_TYPE_MAP[extension]
+
+            dest = os.path.join(folder, target, file)
+            shutil.move(path, dest)
+
+            continue
     
-    else:
-        filenameAndMove(miscFolder)
-    
+    shutil.move(path, os.path.join(other, file))
+    # print(f"Konnte Datei nicht zuordnen: {file}")
